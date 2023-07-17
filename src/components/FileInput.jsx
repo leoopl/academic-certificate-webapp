@@ -8,7 +8,6 @@ import './FileInput.css';
 
 import { ImageConfig } from '../config/ImageConfig'; 
 import uploadImg from '../assets/cloud_upload_icon.svg';
-import axios from 'axios';
 
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
@@ -75,9 +74,9 @@ const DropFileInput = props => {
     }
 
         useEffect(() => {
-            // const docHash = JSON.stringify(metadata.info.Title).replace(/^"(.*)"$/, '$1')
-            axios
-              .get('http://localhost:3001/')
+            const docHash = JSON.stringify(metadata.info.Title).replace(/^"(.*)"$/, '$1')
+            api
+              .get(docHash)
               .then((response) => (setBlockchainMetadata(response.data)))
               .catch((err) => {
                 console.error("ops! ocorreu um erro" + err);
