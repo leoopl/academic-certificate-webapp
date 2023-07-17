@@ -9,7 +9,6 @@ import './FileInput.css';
 import { ImageConfig } from '../config/ImageConfig'; 
 import uploadImg from '../assets/cloud_upload_icon.svg';
 
-
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
     'pdfjs-dist/build/pdf.worker.min.js',
     import.meta.url,
@@ -53,6 +52,7 @@ const DropFileInput = props => {
     async function uploadingFile() {
         metadata.info.Title ? blockchainMetadata.CertificateHash === JSON.stringify(metadata.info.Title).replace(/^"(.*)"$/, '$1') ? (
             Swal.fire({
+                grow: 'fullscreen',
                 icon: 'success',
                 title: 'Success',
                 text: 'Valid document!'
@@ -73,16 +73,20 @@ const DropFileInput = props => {
     
     }
 
-        useEffect(() => {
-            const docHash = JSON.stringify(metadata.info.Title).replace(/^"(.*)"$/, '$1')
-            api
-              .get(docHash)
-              .then((response) => (setBlockchainMetadata(response.data)))
-              .catch((err) => {
-                console.error("ops! ocorreu um erro" + err);
-              });
-          }, []);
-        
+    useEffect(() => {
+        const docHash = JSON.stringify(metadata.info.Title).replace(/^"(.*)"$/, '$1')
+        api
+          .get(docHash, {
+                  headers: {
+                    'x-api-key': '64e83f04-9bb6-4085-b34c-828ab2b5a769'
+                  }
+                })
+          .then((response) => (setBlockchainMetadata(response.data)))
+          .catch((err) => {
+            console.error("ops! ocorreu um erro" + err);
+          });
+    }, []);
+
         return (
         <>
         {
