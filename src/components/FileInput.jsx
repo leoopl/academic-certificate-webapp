@@ -74,7 +74,8 @@ const DropFileInput = props => {
     }
 
     useEffect(() => {
-        const docHash = JSON.stringify(metadata.info.Title).replace(/^"(.*)"$/, '$1')
+        if(metadata && metadata.info && metadata.info.Title){
+	const docHash = JSON.stringify(metadata.info.Title).replace(/^"(.*)"$/, '$1')
         api
           .get(docHash, {
                   headers: {
@@ -85,7 +86,7 @@ const DropFileInput = props => {
           .catch((err) => {
             console.error("ops! ocorreu um erro" + err);
           });
-    }, []);
+    }} , [metadata]);
 
         return (
         <>
