@@ -1,13 +1,15 @@
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { pdfjs, Document } from "react-pdf";
+import { PDFDocument } from 'pdf-lib'
 import Swal from 'sweetalert2'
-import api from '../services/api'
 
 import './FileInput.css';
 
-import { ImageConfig } from '../config/ImageConfig'; 
-import uploadImg from '../assets/cloud_upload_icon.svg';
+import { ImageConfig } from '../../config/ImageConfig'; 
+import uploadImg from '../../assets/cloud_upload_icon.svg';
+
+const hashList = ['ChaveHash9j214hcs9345', 'd[=7mYp!Tw5)d,KM']
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
     'pdfjs-dist/build/pdf.worker.min.js',
@@ -44,62 +46,43 @@ const DropFileInput = props => {
         }
     }
 
-    
     async function onLoadSuccess(pdf) {
         setMetadata(await pdf.getMetadata());
-    }
+        const existingPdfBytes = await fetch('PDF-file-demonstration.pdf').then(res => res.arrayBuffer())
+        const pdfDoc = await PDFDocument.load(existingPdfBytes, { 
+          updateMetadata: false 
+        })
+        setBlockchainMetadata(pdfDoc.getTitle())
+      }
     
     async function uploadingFile() {
-        metadata.info.Title ? blockchainMetadata.CertificateHash === JSON.stringify(metadata.info.Title).replace(/^"(.*)"$/, '$1') ? (
+        // {metadata.info.Title ? blockchainMetadata === JSON.stringify(metadata.info.Title).replace(/^"(.*)"$/, '$1') ? console.log('accept') : console.log('denied') : console.log('denied')}
+        {metadata.info.Title ? hashList.includes(JSON.stringify(metadata.info.Title).replace(/^"(.*)"$/, '$1')) ? (
             Swal.fire({
-                grow: 'fullscreen',
-                html: 
-                '<div >' +
-                `<h2>Escola:</h2> <p>${blockchainMetadata.InstitutionName}</p>` + 
-                `<h2>Curso:</h2> <p>${blockchainMetadata.CourseName}</p>` +
-                `<h2>Nome do Aluno:</h2> <p>${blockchainMetadata.StudentName}</p>` +
-                `<h2>ID do Aluno:</h2> <p>${blockchainMetadata.StudentId}</p>` +
-                `<h2>CPF do Aluno:</h2> <p>${blockchainMetadata.StudentCPF}</p>` +
-                `<h2>Data de Conclusão:</h2> <p>${blockchainMetadata.CourseCompletionDate}</p>` +
-                `<h2>Horas de Curso:</h2> <p>${blockchainMetadata.CourseHours}</p>` +
-                `<h2>HASH do Certificado:</h2> <p>${blockchainMetadata.CertificateHash}</p>` +
-                '</div>'
-                ,
                 icon: 'success',
-                title: 'Certificate validated successfully'
-            })
-            ) : (
+                title: 'Success',
+                text: 'Valid document!'
+              })
+        ) : (
             Swal.fire({
                 icon: 'error',
                 title: 'Oops...',
                 text: 'Invalid document!'
-            })
-            ) : (
+              })
+        ) : (
             Swal.fire({
                 icon: 'error',
                 title: 'Oops...',
                 text: 'Invalid document!'
-        })
-        )
-    
+              })
+        )}
+
+        // console.log(blockchainMetadata)
+        // console.log(JSON.stringify(metadata.info.Title).replace(/^"(.*)"$/, '$1'))
+        // pdfDoc.getTitle() === JSON.stringify(metadata.info.Title).replace(/^"(.*)"$/, '$1') ? console.log('accept') : console.log('denied')
     }
 
-    useEffect(() => {
-        if(metadata && metadata.info && metadata.info.Title){
-	const docHash = JSON.stringify(metadata.info.Title).replace(/^"(.*)"$/, '$1')
-        api
-          .get(docHash, {
-                  headers: {
-                    'x-api-key': '64e83f04-9bb6-4085-b34c-828ab2b5a769'
-                  }
-                })
-          .then((response) => (setBlockchainMetadata(response.data)))
-          .catch((err) => {
-            console.error("ops! ocorreu um erro" + err);
-          });
-    }} , [metadata]);
-
-        return (
+    return (
         <>
         {
             currentFile === null ? (
